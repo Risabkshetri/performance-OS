@@ -9,7 +9,7 @@ import { PILLAR_META } from "@/components/shared/indicators";
 import { useAction } from "@/hooks/use-action";
 import { useNow } from "@/hooks/use-now";
 import { startTimer, stopTimer } from "@/lib/actions/activities";
-import { formatClock, PILLAR_LABEL } from "@/lib/format";
+import { formatClock, PILLAR_LABEL, formatDuration } from "@/lib/format";
 import type { Activity, ActivityCategory, ActivityKind, Pillar } from "@/types/domain";
 import { cn } from "@/lib/utils";
 
@@ -218,14 +218,21 @@ function StartForm({ categories, tasks, onStarted }: { categories: ActivityCateg
         <DialogTitle className="sr-only">Start a focus session</DialogTitle>
       </DialogHeader>
 
-      <input
+      <textarea
         autoFocus
+        rows={1}
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e) => setTitle(e.target.value.replace(/\n/g, " "))}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.currentTarget.form?.requestSubmit();
+          }
+        }}
         placeholder={taskId ? tasks.find((t) => t.id === taskId)?.title : "What are you working on?"}
         aria-label="What are you working on?"
         maxLength={200}
-        className="mt-2 w-full bg-transparent font-display text-3xl font-medium tracking-[-0.01em] outline-none placeholder:text-subtle-foreground sm:text-4xl"
+        className="mt-2 field-sizing-content w-full resize-none bg-transparent font-display text-2xl font-medium leading-tight tracking-[-0.01em] outline-none placeholder:text-subtle-foreground sm:text-4xl"
       />
 
       {tasks.length ? (
@@ -299,7 +306,7 @@ function StartForm({ categories, tasks, onStarted }: { categories: ActivityCateg
             ariaLabel="Session target"
             value={target}
             onChange={setTarget}
-            options={TARGETS.map((m) => ({ value: m, label: m < 60 ? `${m} min` : `${m / 60}h ${m % 60 ? `${m % 60}m` : ""}`.trim() }))}
+            options={TARGETS.map((m) => ({ value: m, label: m < 60 ? `${m} min` : formatDuration(m) }))}
           />
         </div>
       </div>

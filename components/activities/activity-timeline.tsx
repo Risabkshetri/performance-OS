@@ -78,7 +78,7 @@ export function ActivityTimeline({
                 <span className="w-16 shrink-0 text-xs text-muted-foreground tabular sm:w-20">{formatClock(a.started_at, tz)}</span>
                 <span className={cn("size-1.5 shrink-0 rounded-full", KIND_DOT[cat?.kind ?? "other"])} aria-hidden />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm">{a.title}</p>
+                  <p className="line-clamp-2 text-sm leading-snug" title={a.title}>{a.title}</p>
                   {a.notes ? (
                     <p className="line-clamp-1 text-xs text-muted-foreground" title={a.notes}>
                       {a.notes}

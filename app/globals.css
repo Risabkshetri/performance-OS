@@ -189,6 +189,19 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Long unbroken strings (pasted links, codes) wrap instead of widening the page. */
+    overflow-wrap: anywhere;
+  }
+  /* Safety net: the page itself never scrolls sideways (clip keeps sticky headers working). */
+  html,
+  body {
+    overflow-x: clip;
+  }
+  /* Grid and flex children may shrink below their content's width, so one long word
+     can't force a whole column (and the page) wider than the screen. */
+  :where(.grid) > *,
+  :where(.flex) > :not(svg, img, input[type="checkbox"], [role="checkbox"]) {
+    min-width: 0;
   }
   /* Display serif (Besley) for page titles, as on the reference site */
   h1 {

@@ -205,34 +205,21 @@ function GoalCard({
   return (
     <article
       style={tone}
-      className="group/goal relative flex flex-col overflow-hidden rounded-2xl border bg-card shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition-shadow hover:shadow-[0_12px_32px_-18px_rgb(0_0_0/0.3)]"
+      className="relative flex flex-col overflow-hidden rounded-2xl border bg-card shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition-shadow hover:shadow-[0_12px_32px_-18px_rgb(0_0_0/0.3)]"
     >
-      {/* pillar wash */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[linear-gradient(to_bottom,color-mix(in_oklab,var(--pillar)_10%,transparent),transparent)]" />
-
-      <div className="relative flex items-start gap-4 px-5 pt-5">
+      <div className="flex items-start gap-3 px-5 pt-5">
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-            <span className="font-medium" style={{ color: "var(--pillar-ink)" }}>
-              {HORIZON_LABEL[goal.horizon]}
-            </span>
-            {daysLeft != null && goal.status !== "completed" ? (
-              <span
-                className={cn(
-                  "rounded-full px-2 py-0.5 tabular",
-                  daysLeft < 0 ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground",
-                )}
-                title={goal.deadline ? `Due ${formatFullDate(goal.deadline)}` : undefined}
-              >
-                {daysLeft < 0 ? `${-daysLeft}d overdue` : daysLeft === 0 ? "Due today" : `${daysLeft} days left`}
-              </span>
-            ) : null}
-          </div>
-          <h3 className="mt-2 font-display text-xl font-medium leading-snug text-balance">{goal.title}</h3>
+          <p className="text-xs font-medium" style={{ color: "var(--pillar-ink)" }}>
+            {HORIZON_LABEL[goal.horizon]}
+          </p>
+          <h3 className="mt-1 font-display text-xl font-medium leading-snug text-balance">{goal.title}</h3>
         </div>
-
         <ProgressRing percent={progress.percent} expected={health === "behind" ? expected : null} />
       </div>
+
+      {daysLeft != null && goal.status !== "completed" ? (
+        <Countdown daysLeft={daysLeft} deadline={goal.deadline!} start={goal.start_date} today={today} />
+      ) : null}
 
       {goal.description ? (
         <figure className="relative mx-5 mt-4 border-l-2 pl-3" style={{ borderColor: "color-mix(in oklab, var(--pillar) 45%, transparent)" }}>
@@ -322,6 +309,49 @@ function GoalCard({
         </DropdownMenu>
       </div>
     </article>
+  );
+}
+
+/** The days remaining, large enough to register at a glance every day. */
+function Countdown({ daysLeft, deadline, start, today }: { daysLeft: number; deadline: string; start: string; today: string }) {
+  const total = Math.max(1, diffDays(start, deadline));
+  const used = Math.min(100, Math.max(0, Math.round((diffDays(start, today) / total) * 100)));
+  const overdue = daysLeft < 0;
+  const urgent = !overdue && daysLeft <= 7;
+  return (
+    <div
+      className={cn(
+        "mx-5 mt-4 rounded-xl border px-4 py-3",
+        overdue ? "border-destructive/30 bg-destructive/5" : urgent ? "border-warning/40 bg-warning/5" : "bg-muted/50",
+      )}
+    >
+      <div className="flex items-end justify-between gap-3">
+        <p className="flex items-baseline gap-2">
+          <span
+            className={cn(
+              "font-display text-5xl font-medium leading-none tracking-tight tabular",
+              overdue ? "text-destructive" : urgent ? "text-warning" : "text-foreground",
+            )}
+          >
+            {Math.abs(daysLeft)}
+          </span>
+          <span className="text-sm font-medium text-muted-foreground">
+            {overdue ? (Math.abs(daysLeft) === 1 ? "day overdue" : "days overdue") : daysLeft === 1 ? "day left" : daysLeft === 0 ? "days left · due today" : "days left"}
+          </span>
+        </p>
+        <p className="shrink-0 pb-0.5 text-right text-xs text-muted-foreground">
+          due
+          <br />
+          <span className="font-medium text-foreground">{formatShortDate(deadline)}</span>
+        </p>
+      </div>
+      <div className="mt-3 flex items-center gap-2" title={`${used}% of the time has passed`}>
+        <div className="h-1 flex-1 overflow-hidden rounded-full bg-border">
+          <div className={cn("h-full rounded-full", overdue ? "bg-destructive" : "bg-foreground/50")} style={{ width: `${used}%` }} />
+        </div>
+        <span className="shrink-0 text-[11px] text-muted-foreground tabular">{used}% of time used</span>
+      </div>
+    </div>
   );
 }
 
