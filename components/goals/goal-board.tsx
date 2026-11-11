@@ -204,7 +204,7 @@ function GoalCard({
           </p>
           <h3 className="mt-0.5 text-sm font-medium leading-5">{goal.title}</h3>
         </div>
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon-xs" className="touch:size-9" aria-label={`Actions for ${goal.title}`} disabled={pending}>
               <MoreHorizontal />
@@ -297,7 +297,7 @@ function Milestones({ goal }: { goal: GoalWithDetail }) {
           <Button
             variant="ghost"
             size="icon-xs"
-            className="touch:size-9 can-hover:opacity-0 can-hover:group-hover:can-hover:focus-visible:opacity-100"
+            className="touch:size-9 text-subtle-foreground hover:text-foreground data-[state=open]:text-foreground"
             aria-label={`Remove milestone ${m.title}`}
             onClick={() => run(() => deleteMilestone(m.id))}
           >

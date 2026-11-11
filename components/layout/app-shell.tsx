@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu } from "lucide-react";
+import { Lock, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { NAV_ITEMS, isActive } from "./nav-config";
 import { ThemeSync, ThemeToggle } from "./theme-toggle";
 import { initTimezone } from "@/lib/actions/misc";
+import { lock } from "@/lib/gate/actions";
 import type { ThemePreference } from "@/types/domain";
 
 interface ShellProps {
@@ -66,6 +67,11 @@ function ProfileBlock({ user }: Pick<ShellProps, "user">) {
         {user.email ? <p className="truncate text-xs text-muted-foreground">{user.email}</p> : null}
       </div>
       <ThemeToggle />
+      <form action={lock}>
+        <Button variant="ghost" size="icon-sm" type="submit" aria-label="Lock">
+          <Lock />
+        </Button>
+      </form>
     </div>
   );
 }

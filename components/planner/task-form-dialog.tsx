@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,8 @@ export interface TaskFormProps {
   defaultDate?: string;
   defaultPriority: Priority;
   editing?: PlannedTask | null;
+  /** shown as a Delete button when editing */
+  onDelete?: () => void;
 }
 
 function initialValues(p: TaskFormProps): FormValues {
@@ -295,7 +297,12 @@ function TaskForm(props: TaskFormProps) {
         ) : null}
       </div>
 
-      <DialogFooter className="mt-6">
+      <DialogFooter className="mt-6 sm:items-center">
+        {editing && props.onDelete ? (
+          <Button type="button" variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive sm:mr-auto" onClick={props.onDelete}>
+            <Trash2 /> Delete
+          </Button>
+        ) : null}
         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>

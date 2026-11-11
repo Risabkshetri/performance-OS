@@ -21,7 +21,8 @@ There are no external integrations.
    |---|---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | yes | Project URL |
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | yes | Publishable key (`NEXT_PUBLIC_SUPABASE_ANON_KEY` also accepted) |
-   | `OWNER_EMAIL` / `OWNER_PASSWORD` | yes | The owner account. Server-only; the app signs in with it automatically |
+   | `APP_PASSCODE` | yes | Lock-screen passcode. Without it the app stays locked (fails closed) |
+   | `OWNER_EMAIL` / `OWNER_PASSWORD` | yes | The owner account. Server-only; used after the passcode |
 
    The service-role key is never used.
 5. **Starting fresh.** `supabase/reset-data.sql` deletes every record (tasks, activities, habits,
@@ -103,7 +104,8 @@ kind), `activities` · `sleep_logs` (overlaps rejected by an exclusion constrain
 app/setup                shown when the owner env vars are missing or wrong
 app/(app)/…              dashboard, planner, activities, habits, goals, performance,
                          affirmations, reviews, settings (+ loading / error boundaries)
-proxy.ts                 signs in as the owner and refreshes the session (Next 16 "proxy")
+proxy.ts                 passcode gate, then owner sign-in + session refresh (Next 16 "proxy")
+app/unlock               lock screen
 components/<feature>/    UI by feature; components/ui = shadcn primitives
 lib/date, lib/calculations   pure, unit-tested business logic
 lib/data                 server-only loaders (per-request context, queries, analytics)
@@ -122,6 +124,7 @@ supabase/                migration, reset-data.sql, database tests
 - Pending tasks from past days are marked *missed* when the app next loads. They can still be completed late.
 - Editing a recurring task's title applies to its whole series, including past occurrences (status
   history is preserved).
-- Single owner, no login screen. Anyone who can reach the URL can use the app, so keep it on
-  localhost/your network, or protect a public deployment (e.g. Vercel Deployment Protection).
+- Single owner. Access is a passcode lock screen (`APP_PASSCODE`); the unlocked device keeps a
+  signed, HttpOnly cookie for a year. The lock icon in the sidebar locks the current device. To lock
+  out every device, change `APP_PASSCODE`.
 - No sharing or offline mode.

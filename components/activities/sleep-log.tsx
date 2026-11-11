@@ -44,7 +44,7 @@ export function SleepLogPanel({ logs, tz, today }: { logs: SleepLog[]; tz: strin
               <span className="w-16 text-right font-medium tabular">
                 {formatDuration((Date.parse(s.woke_at) - Date.parse(s.slept_at)) / 60000)}
               </span>
-              <span className="flex can-hover:opacity-0 can-hover:group-hover:can-hover:focus-within:opacity-100">
+              <span className="flex text-subtle-foreground">
                 <Button variant="ghost" size="icon-xs" className="touch:size-9" aria-label="Edit sleep entry" onClick={() => setEditing(s)}>
                   <Pencil />
                 </Button>

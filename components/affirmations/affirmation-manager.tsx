@@ -94,7 +94,7 @@ export function AffirmationManager({
                 {a.horizon ? <span className="text-muted-foreground">· {HORIZON_LABEL[a.horizon]}</span> : null}
                 {a.is_featured ? <Star className="ml-auto size-3.5 fill-current text-primary" aria-label="On your overview" /> : null}
               </div>
-              <div className="absolute right-1.5 top-1.5 z-10 opacity-100 transition-opacity can-hover:opacity-0 can-hover:group-hover:can-hover:focus-within:opacity-100">
+              <div className="absolute right-1.5 top-1.5 z-10 transition-opacity can-hover:opacity-0 can-hover:group-hover:opacity-100 can-hover:focus-within:opacity-100 has-[[data-state=open]]:opacity-100">
                 <NoteMenu
                   a={a}
                   pending={pending}
@@ -194,7 +194,7 @@ function NoteMenu({
   onArchive: () => void;
 }) {
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon-xs" aria-label="Affirmation actions" disabled={pending} className="touch:size-9 hover:bg-black/5 dark:hover:bg-white/10">
           <MoreHorizontal />

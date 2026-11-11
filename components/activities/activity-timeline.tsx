@@ -92,12 +92,12 @@ export function ActivityTimeline({
                 </div>
                 <span className="shrink-0 text-sm tabular">{minutes == null ? "-" : formatDuration(minutes)}</span>
                 {!readOnly ? (
-                  <DropdownMenu>
+                  <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon-xs"
-                        className="touch:size-9 can-hover:opacity-0 can-hover:group-hover:can-hover:focus-visible:opacity-100 data-[state=open]:opacity-100"
+                        className="touch:size-9 text-subtle-foreground hover:text-foreground data-[state=open]:text-foreground"
                         aria-label={`Actions for ${a.title}`}
                       >
                         <MoreHorizontal />

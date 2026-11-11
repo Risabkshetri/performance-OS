@@ -80,6 +80,11 @@ export function TaskList({ tasks, goals, today, defaultPriority, showDate, dense
       <TaskFormDialog
         open={!!editing}
         onOpenChange={(o) => !o && setEditing(null)}
+        onDelete={() => {
+          const t = editing;
+          setEditing(null);
+          setDeleting(t);
+        }}
         editing={editing}
         goals={goals}
         today={today}
@@ -189,12 +194,12 @@ function TaskRow({
           {t.status !== "pending" && t.status !== "completed" ? <StatusBadge status={t.status} /> : null}
         </div>
       </div>
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon-xs"
-            className="touch:size-9 can-hover:opacity-0 can-hover:group-hover:can-hover:focus-visible:opacity-100 data-[state=open]:opacity-100"
+            className="touch:size-9 text-subtle-foreground hover:text-foreground data-[state=open]:text-foreground"
             aria-label={`Actions for "${t.task.title}"`}
           >
             <MoreHorizontal />
