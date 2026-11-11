@@ -5,6 +5,7 @@ import {
   Archive,
   ArchiveRestore,
   CalendarClock,
+  ChevronDown,
   CircleCheck,
   CircleDashed,
   Clock,
@@ -44,6 +45,7 @@ import {
 } from "@/lib/actions/goals";
 import { goalHealth, goalProgress, type GoalHealth } from "@/lib/calculations/goals";
 import { formatFullDate, formatNumber, formatShortDate, HORIZON_LABEL } from "@/lib/format";
+import { diffDays } from "@/lib/date/productivity-day";
 import type { GoalWithDetail } from "@/lib/data/queries";
 import type { GoalHorizon, Pillar } from "@/types/domain";
 import { cn } from "@/lib/utils";
@@ -188,32 +190,118 @@ function GoalCard({
 }) {
   const { run, pending } = useAction();
   const [showMilestones, setShowMilestones] = useState(goal.milestones.length > 0 && goal.milestones.length <= 4);
+  const [whyOpen, setWhyOpen] = useState(false);
   const progress = goalProgress(goal, goal.milestones);
   const { health, expected } = goalHealth(goal, progress.percent, today);
   const meta = HEALTH_META[health];
   const HealthIcon = meta.icon;
   const msDone = goal.milestones.filter((m) => m.completed_at).length;
+  const daysLeft = goal.deadline ? diffDays(today, goal.deadline) : null;
+  const tone = {
+    "--pillar": `var(--pillar-${goal.pillar})`,
+    "--pillar-ink": `color-mix(in oklab, var(--pillar-${goal.pillar}) 55%, var(--foreground))`,
+  } as React.CSSProperties;
 
   return (
-    <article className="flex flex-col rounded-xl border bg-card p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-xs text-muted-foreground">
-            {HORIZON_LABEL[goal.horizon]}
-            {goal.deadline ? ` · due ${formatShortDate(goal.deadline)}` : ""}
-          </p>
-          <h3 className="mt-0.5 text-sm font-medium leading-5">{goal.title}</h3>
+    <article
+      style={tone}
+      className="group/goal relative flex flex-col overflow-hidden rounded-2xl border bg-card shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition-shadow hover:shadow-[0_12px_32px_-18px_rgb(0_0_0/0.3)]"
+    >
+      {/* pillar wash */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[linear-gradient(to_bottom,color-mix(in_oklab,var(--pillar)_10%,transparent),transparent)]" />
+
+      <div className="relative flex items-start gap-4 px-5 pt-5">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+            <span className="font-medium" style={{ color: "var(--pillar-ink)" }}>
+              {HORIZON_LABEL[goal.horizon]}
+            </span>
+            {daysLeft != null && goal.status !== "completed" ? (
+              <span
+                className={cn(
+                  "rounded-full px-2 py-0.5 tabular",
+                  daysLeft < 0 ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground",
+                )}
+                title={goal.deadline ? `Due ${formatFullDate(goal.deadline)}` : undefined}
+              >
+                {daysLeft < 0 ? `${-daysLeft}d overdue` : daysLeft === 0 ? "Due today" : `${daysLeft} days left`}
+              </span>
+            ) : null}
+          </div>
+          <h3 className="mt-2 font-display text-xl font-medium leading-snug text-balance">{goal.title}</h3>
         </div>
+
+        <ProgressRing percent={progress.percent} expected={health === "behind" ? expected : null} />
+      </div>
+
+      {goal.description ? (
+        <figure className="relative mx-5 mt-4 border-l-2 pl-3" style={{ borderColor: "color-mix(in oklab, var(--pillar) 45%, transparent)" }}>
+          <figcaption className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Why</figcaption>
+          <blockquote className={cn("mt-1 whitespace-pre-line text-sm leading-relaxed text-foreground/85", !whyOpen && "line-clamp-3")}>
+            {goal.description}
+          </blockquote>
+          {goal.description.length > 140 ? (
+            <button type="button" onClick={() => setWhyOpen((o) => !o)} className="mt-1 text-xs font-medium text-muted-foreground hover:text-foreground">
+              {whyOpen ? "Show less" : "Read more"}
+            </button>
+          ) : null}
+        </figure>
+      ) : null}
+      {goal.notes ? <p className="mx-5 mt-3 line-clamp-2 text-xs text-subtle-foreground" title={goal.notes}>{goal.notes}</p> : null}
+
+      <div className="relative mx-5 mt-5">
+        <div className="mb-2 flex items-center justify-between gap-2 text-xs">
+          <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-medium", meta.className, "bg-current/10")}>
+            <HealthIcon className="size-3.5" aria-hidden />
+            <span>{meta.label}</span>
+          </span>
+          <span className="text-muted-foreground tabular">
+            {progress.source === "numeric"
+              ? `${formatNumber(goal.current_value ?? 0)} / ${formatNumber(goal.target_value)}${goal.unit ? ` ${goal.unit}` : ""}`
+              : progress.source === "milestones"
+                ? `${msDone}/${goal.milestones.length} milestones`
+                : "Self-assessed"}
+          </span>
+        </div>
+        <ProgressBar value={progress.percent} pillar={goal.pillar} label={`${goal.title} progress`} />
+        {link?.total ? (
+          <p className="mt-1.5 text-xs text-muted-foreground tabular">
+            {link.done}/{link.total} linked tasks done
+          </p>
+        ) : null}
+      </div>
+
+      <div className="mx-5 mt-4 border-t pt-3">
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+          onClick={() => setShowMilestones((s) => !s)}
+          aria-expanded={showMilestones}
+        >
+          <ListChecks className="size-3.5" aria-hidden /> Milestones
+          {goal.milestones.length ? <span className="tabular">· {msDone}/{goal.milestones.length}</span> : null}
+          <ChevronDown className={cn("size-3.5 transition-transform", showMilestones && "rotate-180")} aria-hidden />
+        </button>
+        {showMilestones ? <Milestones goal={goal} today={today} /> : null}
+      </div>
+
+      <div className="mt-auto flex items-center justify-between gap-2 px-5 pb-4 pt-4">
+        <Button variant="outline" size="sm" className="rounded-full" onClick={onProgress} disabled={pending}>
+          <TrendingUp /> Update progress
+        </Button>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-xs" className="touch:size-9" aria-label={`Actions for ${goal.title}`} disabled={pending}>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-subtle-foreground hover:text-foreground data-[state=open]:text-foreground"
+              aria-label={`Actions for ${goal.title}`}
+              disabled={pending}
+            >
               <MoreHorizontal />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={onProgress}>
-              <TrendingUp /> Update progress
-            </DropdownMenuItem>
             <DropdownMenuItem onSelect={onEdit}>
               <Pencil /> Edit
             </DropdownMenuItem>
@@ -233,80 +321,96 @@ function GoalCard({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
-      {goal.description ? <p className="mt-1 line-clamp-2 text-xs text-muted-foreground" title={goal.description}>{goal.description}</p> : null}
-      {goal.notes ? (
-        <p className="mt-1.5 line-clamp-2 border-l-2 pl-2 text-xs text-subtle-foreground" title={goal.notes}>
-          {goal.notes}
-        </p>
-      ) : null}
-
-      <div className="mt-4">
-        <div className="mb-1.5 flex items-baseline justify-between text-xs">
-          <span className={cn("inline-flex items-center gap-1", meta.className)}>
-            <HealthIcon className="size-3.5" aria-hidden />
-            {meta.label}
-            {health === "behind" && expected != null ? (
-              <span className="text-muted-foreground">· expected ~{expected}%</span>
-            ) : null}
-          </span>
-          <span className="font-medium tabular">{progress.percent}%</span>
-        </div>
-        <ProgressBar value={progress.percent} pillar={goal.pillar} label={`${goal.title} progress`} />
-        <p className="mt-1.5 text-xs text-muted-foreground">
-          {progress.source === "numeric"
-            ? `${formatNumber(goal.current_value ?? 0)} of ${formatNumber(goal.target_value)}${goal.unit ? ` ${goal.unit}` : ""}`
-            : progress.source === "milestones"
-              ? `${msDone} of ${goal.milestones.length} milestones`
-              : "Self-assessed"}
-          {link?.total ? ` · ${link.done}/${link.total} linked tasks done` : ""}
-        </p>
-      </div>
-
-      <div className="mt-3 border-t pt-2">
-        <button
-          type="button"
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-          onClick={() => setShowMilestones((s) => !s)}
-          aria-expanded={showMilestones}
-        >
-          <ListChecks className="size-3.5" /> Milestones {goal.milestones.length ? `(${msDone}/${goal.milestones.length})` : ""}
-        </button>
-        {showMilestones ? <Milestones goal={goal} /> : null}
-      </div>
     </article>
   );
 }
 
-function Milestones({ goal }: { goal: GoalWithDetail }) {
+/** Circular progress in the goal's pillar colour, with an optional "expected by now" tick. */
+function ProgressRing({ percent, expected }: { percent: number; expected: number | null }) {
+  const R = 26;
+  const C = 2 * Math.PI * R;
+  const tick = expected != null ? (expected / 100) * 2 * Math.PI - Math.PI / 2 : null;
+  return (
+    <div className="relative grid size-16 shrink-0 place-items-center" role="img" aria-label={`${percent}% complete`}>
+      <svg viewBox="0 0 64 64" className="absolute inset-0 size-full" aria-hidden>
+        <circle cx="32" cy="32" r={R} fill="none" stroke="color-mix(in oklab, var(--pillar) 15%, transparent)" strokeWidth="5" />
+        <circle
+          cx="32"
+          cy="32"
+          r={R}
+          fill="none"
+          stroke="var(--pillar)"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeDasharray={C}
+          strokeDashoffset={C * (1 - Math.min(100, percent) / 100)}
+          transform="rotate(-90 32 32)"
+          className="transition-[stroke-dashoffset] duration-700 ease-out motion-reduce:transition-none"
+        />
+        {tick != null ? (
+          <line
+            x1={32 + (R - 5) * Math.cos(tick)}
+            y1={32 + (R - 5) * Math.sin(tick)}
+            x2={32 + (R + 5) * Math.cos(tick)}
+            y2={32 + (R + 5) * Math.sin(tick)}
+            stroke="var(--foreground)"
+            strokeOpacity="0.45"
+            strokeWidth="1.5"
+          />
+        ) : null}
+      </svg>
+      <span className="font-display text-base font-medium tabular">
+        {percent}
+        <span className="text-[10px] text-muted-foreground">%</span>
+      </span>
+    </div>
+  );
+}
+
+function Milestones({ goal, today }: { goal: GoalWithDetail; today: string }) {
   const { run, pending } = useAction();
   const [title, setTitle] = useState("");
   const [due, setDue] = useState("");
   return (
-    <div className="mt-2 space-y-1">
-      {goal.milestones.map((m) => (
-        <div key={m.id} className="group flex items-center gap-2 text-sm">
-          <Checkbox
-            checked={!!m.completed_at}
-            disabled={pending}
-            onCheckedChange={(c) => run(() => toggleMilestone(m.id, c === true), { quiet: true })}
-            aria-label={`Milestone ${m.title}`}
-          />
-          <span className={cn("flex-1", m.completed_at && "text-muted-foreground line-through")}>{m.title}</span>
-          {m.due_date ? <span className="text-xs text-muted-foreground">{formatShortDate(m.due_date)}</span> : null}
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className="touch:size-9 text-subtle-foreground hover:text-foreground data-[state=open]:text-foreground"
-            aria-label={`Remove milestone ${m.title}`}
-            onClick={() => run(() => deleteMilestone(m.id))}
-          >
-            <X />
-          </Button>
-        </div>
-      ))}
+    <div className="mt-3">
+      {goal.milestones.length ? (
+        <ol className="relative space-y-0.5 before:absolute before:bottom-3 before:left-[9px] before:top-3 before:w-px before:bg-border">
+          {goal.milestones.map((m) => {
+            const done = Boolean(m.completed_at);
+            const late = !done && m.due_date != null && m.due_date < today;
+            return (
+              <li key={m.id} className="relative flex items-center gap-3 rounded-lg py-1.5 pr-1">
+                <Checkbox
+                  checked={done}
+                  disabled={pending}
+                  onCheckedChange={(c) => run(() => toggleMilestone(m.id, c === true), { quiet: true })}
+                  aria-label={`Milestone ${m.title}`}
+                  className="relative size-[18px] rounded-full bg-card data-checked:border-[var(--pillar)] data-checked:bg-[var(--pillar)]"
+                />
+                <span className={cn("min-w-0 flex-1 text-sm", done && "text-muted-foreground line-through decoration-subtle-foreground")}>
+                  {m.title}
+                </span>
+                {m.due_date ? (
+                  <span className={cn("shrink-0 text-xs tabular", late ? "text-destructive" : "text-muted-foreground")}>
+                    {formatShortDate(m.due_date)}
+                  </span>
+                ) : null}
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="touch:size-9 text-subtle-foreground hover:text-foreground"
+                  aria-label={`Remove milestone ${m.title}`}
+                  onClick={() => run(() => deleteMilestone(m.id))}
+                >
+                  <X />
+                </Button>
+              </li>
+            );
+          })}
+        </ol>
+      ) : null}
       <form
-        className="flex items-center gap-1.5 pt-1"
+        className="mt-2 flex items-center gap-1.5 rounded-lg border border-dashed px-2 py-1 transition-colors focus-within:border-ring"
         onSubmit={(e) => {
           e.preventDefault();
           run(() => addMilestone({ goal_id: goal.id, title, due_date: due }), {
@@ -318,9 +422,22 @@ function Milestones({ goal }: { goal: GoalWithDetail }) {
           });
         }}
       >
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add a milestone" className="h-7 text-xs" aria-label="Milestone title" />
-        <Input type="date" value={due} onChange={(e) => setDue(e.target.value)} className="h-7 w-auto text-xs" aria-label="Milestone due date" />
-        <Button type="submit" size="xs" variant="outline" disabled={pending || !title.trim()}>
+        <Plus className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Add a milestone"
+          aria-label="Milestone title"
+          className="h-7 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-subtle-foreground"
+        />
+        <input
+          type="date"
+          value={due}
+          onChange={(e) => setDue(e.target.value)}
+          aria-label="Milestone due date"
+          className="h-7 w-[7.5rem] shrink-0 bg-transparent text-xs text-muted-foreground outline-none"
+        />
+        <Button type="submit" size="xs" variant="ghost" disabled={pending || !title.trim()}>
           Add
         </Button>
       </form>
