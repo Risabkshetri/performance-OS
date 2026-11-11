@@ -1,0 +1,225 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+/* Devices with a real hover pointer (mouse/trackpad). Touch screens skip hover-only UI. */
+@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
+/* Touch screens: bigger hit targets. */
+@custom-variant touch (@media (pointer: coarse));
+
+/*
+ * Design tokens. Components must use these semantic tokens
+ * (bg-background, text-muted-foreground, text-pillar-health, ...)
+ * rather than hard-coded colors.
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-display);
+  --font-display: var(--font-display);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-elevated: var(--elevated);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-pillar-health: var(--pillar-health);
+  --color-pillar-finance: var(--pillar-finance);
+  --color-pillar-growth: var(--pillar-growth);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+/* ---------- Light (default) ---------- */
+:root {
+  --radius: 0.625rem;
+
+  --background: #f7f8fa;
+  --foreground: #20242c;
+  --card: #ffffff;
+  --card-foreground: #20242c;
+  --popover: #ffffff;
+  --popover-foreground: #20242c;
+  --elevated: #ffffff;
+
+  --primary: #635bdb;
+  --primary-hover: #5149c8;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f3f6;
+  --secondary-foreground: #20242c;
+  --muted: #f1f3f6;
+  --muted-foreground: #737b89;
+  --subtle-foreground: #9aa1ac;
+  --accent: #f1f3f6;
+  --accent-foreground: #20242c;
+
+  --success: #25856a;
+  --warning: #c38b35;
+  --destructive: #cc6268;
+
+  --border: #e7eaf0;
+  --input: #e7eaf0;
+  --ring: #635bdb;
+
+  --pillar-health: #3e9b78;
+  --pillar-finance: #c79443;
+  --pillar-growth: #7770d8;
+
+  --chart-1: #635bdb;
+  --chart-2: #9aa1ac;
+  --chart-3: #3e9b78;
+  --chart-4: #c79443;
+  --chart-5: #7770d8;
+
+  /* time-allocation series (validated: CVD-safe on #fff) */
+  --viz-deep: #635bdb;
+  --viz-external: #d0832f;
+  --viz-personal: #2a9d8f;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #20242c;
+  --sidebar-primary: #635bdb;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f3f6;
+  --sidebar-accent-foreground: #20242c;
+  --sidebar-border: #e7eaf0;
+  --sidebar-ring: #635bdb;
+}
+
+/* ---------- Dark ---------- */
+.dark {
+  --background: #111318;
+  --foreground: #f1f2f5;
+  --card: #191c23;
+  --card-foreground: #f1f2f5;
+  --popover: #252a34;
+  --popover-foreground: #f1f2f5;
+  --elevated: #252a34;
+
+  --primary: #928bff;
+  --primary-hover: #a9a3ff;
+  --primary-foreground: #111318;
+
+  --secondary: #20242d;
+  --secondary-foreground: #f1f2f5;
+  --muted: #20242d;
+  --muted-foreground: #a1a8b5;
+  --subtle-foreground: #747d8c;
+  --accent: #20242d;
+  --accent-foreground: #f1f2f5;
+
+  --success: #55b995;
+  --warning: #e2b45d;
+  --destructive: #e17a80;
+
+  --border: #2c313c;
+  --input: #2c313c;
+  --ring: #928bff;
+
+  --pillar-health: #62bf9a;
+  --pillar-finance: #dcb06b;
+  --pillar-growth: #9d97f2;
+
+  --chart-1: #928bff;
+  --chart-2: #747d8c;
+  --chart-3: #62bf9a;
+  --chart-4: #dcb06b;
+  --chart-5: #9d97f2;
+
+  --viz-deep: #7d74f0;
+  --viz-external: #c07e34;
+  --viz-personal: #2fa596;
+
+  --sidebar: #191c23;
+  --sidebar-foreground: #f1f2f5;
+  --sidebar-primary: #928bff;
+  --sidebar-primary-foreground: #111318;
+  --sidebar-accent: #20242d;
+  --sidebar-accent-foreground: #f1f2f5;
+  --sidebar-border: #2c313c;
+  --sidebar-ring: #928bff;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  /* Display serif (Besley) for page titles, as on the reference site */
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  /* iOS Safari zooms into fields under 16px; keep them at 16px on phones. */
+  @media (max-width: 767px) {
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select {
+      font-size: max(16px, 1em);
+    }
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 22%, transparent);
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
