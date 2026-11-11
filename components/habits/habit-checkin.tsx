@@ -53,28 +53,32 @@ export function HabitCheckIn({
   }
 
   const state = log ? (log.met ? "avoided" : "slipped") : null;
+  const seg = (on: boolean) =>
+    cn(
+      "inline-flex items-center gap-1 rounded-md font-medium transition-colors disabled:opacity-50 [&_svg]:size-3.5",
+      size === "sm" ? "h-7 px-2 text-xs" : "h-8 px-2.5 text-sm",
+      on ? "bg-background shadow-sm" : "text-muted-foreground hover:text-foreground",
+    );
   return (
-    <div className="inline-flex gap-1" role="group" aria-label={`${habit.name} outcome`}>
-      <Button
-        size={btn}
-        variant={state === "avoided" ? "secondary" : "outline"}
+    <div className="inline-flex shrink-0 rounded-lg bg-muted p-0.5" role="group" aria-label={`${habit.name} outcome`}>
+      <button
+        type="button"
         aria-pressed={state === "avoided"}
         disabled={pending}
-        className={cn(state === "avoided" && "text-success")}
+        className={cn(seg(state === "avoided"), state === "avoided" && "text-success")}
         onClick={() => (state === "avoided" ? clear() : save({ done: true }))}
       >
-        <Check /> Avoided
-      </Button>
-      <Button
-        size={btn}
-        variant={state === "slipped" ? "secondary" : "outline"}
+        <Check aria-hidden /> Avoided
+      </button>
+      <button
+        type="button"
         aria-pressed={state === "slipped"}
         disabled={pending}
-        className={cn(state === "slipped" && "text-destructive")}
+        className={cn(seg(state === "slipped"), state === "slipped" && "text-destructive")}
         onClick={() => (state === "slipped" ? clear() : save({ done: false }))}
       >
-        <X /> Slipped
-      </Button>
+        <X aria-hidden /> Slipped
+      </button>
     </div>
   );
 }

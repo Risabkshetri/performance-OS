@@ -219,9 +219,9 @@ export default async function DashboardPage() {
           {habitsToday.length ? (
             <ul className="space-y-3">
               {habitsToday.map((h) => (
-                <li key={h.id} className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm">{h.name}</p>
+                <li key={h.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                  <div className="min-w-0 flex-1 basis-36">
+                    <p className="line-clamp-2 text-sm leading-snug" title={h.name}>{h.name}</p>
                     <p className={cn("text-xs", h.kind === "good" ? "text-subtle-foreground" : "text-warning")}>{describeTarget(h)}</p>
                   </div>
                   <HabitCheckIn habit={h} log={logsToday.get(h.id)} date={today} size="sm" />

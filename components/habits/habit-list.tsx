@@ -176,7 +176,7 @@ function HabitRow({ stats, today, onEdit }: { stats: HabitStats; today: string; 
           </dl>
         </div>
       </div>
-      <div className="flex items-center gap-2 md:justify-end">
+      <div className="flex flex-wrap items-center gap-2 md:justify-end">
         {habit.active && stats.todayScheduled ? (
           <HabitCheckIn habit={habit} log={todayLog} date={today} />
         ) : (

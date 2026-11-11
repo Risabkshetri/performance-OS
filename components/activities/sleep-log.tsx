@@ -36,15 +36,17 @@ export function SleepLogPanel({ logs, tz, today }: { logs: SleepLog[]; tz: strin
         <ul className="divide-y">
           {logs.map((s) => (
             <li key={s.id} className="group flex items-center gap-3 py-2 text-sm">
-              <span className="w-24 shrink-0 text-xs text-muted-foreground">{formatShortDate(s.wake_date)}</span>
-              <span className="flex-1 text-muted-foreground tabular">
-                {formatClock(s.slept_at, tz)} → {formatClock(s.woke_at, tz)}
+              <span className="min-w-0 flex-1">
+                <span className="block text-xs text-muted-foreground">{formatShortDate(s.wake_date)}</span>
+                <span className="block tabular">
+                  {formatClock(s.slept_at, tz)} → {formatClock(s.woke_at, tz)}
+                </span>
               </span>
               {s.quality ? <span className="hidden text-xs text-muted-foreground sm:inline">{QUALITY[s.quality - 1]}</span> : null}
-              <span className="w-16 text-right font-medium tabular">
+              <span className="w-16 shrink-0 text-right font-medium tabular">
                 {formatDuration((Date.parse(s.woke_at) - Date.parse(s.slept_at)) / 60000)}
               </span>
-              <span className="flex text-subtle-foreground">
+              <span className="flex shrink-0 text-subtle-foreground">
                 <Button variant="ghost" size="icon-xs" className="touch:size-9" aria-label="Edit sleep entry" onClick={() => setEditing(s)}>
                   <Pencil />
                 </Button>
