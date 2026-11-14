@@ -169,7 +169,7 @@ export const progressSchema = z.object({
 // ---------------- affirmations / reviews ----------------
 
 export const affirmationSchema = z.object({
-  text: z.string().trim().min(1, "Write the affirmation").max(500),
+  text: z.string().trim().min(1, "Write the affirmation").max(2000),
   pillar: pillarEnum,
   horizon: z.union([horizonEnum, z.literal(""), z.null()]).optional().transform((v) => v || null),
   goal_id: optionalUuid,

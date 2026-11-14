@@ -314,7 +314,7 @@ function AffirmationForm({ editing, goals, onDone }: { editing: Affirmation | nu
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="I protect my mornings for the work that matters most."
-            maxLength={500}
+            maxLength={2000}
             className="min-h-24 w-full resize-none bg-transparent font-display text-xl font-medium leading-snug text-foreground outline-none field-sizing-content placeholder:text-foreground/35"
           />
         </div>
