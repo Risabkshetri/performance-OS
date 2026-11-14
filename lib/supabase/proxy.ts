@@ -25,7 +25,8 @@ export async function updateSession(request: NextRequest) {
     if (path !== "/" && path !== "/dashboard") to.searchParams.set("next", path + request.nextUrl.search);
     return NextResponse.redirect(to);
   }
-  if (path === "/setup") return NextResponse.next({ request });
+  // Setup and owner password recovery must work while the owner sign-in is failing
+  if (path === "/setup" || path.startsWith("/setup/")) return NextResponse.next({ request });
 
   let response = NextResponse.next({ request });
   const { url, key } = supabaseEnv();
@@ -54,7 +55,13 @@ export async function updateSession(request: NextRequest) {
   if (error) {
     const setup = request.nextUrl.clone();
     setup.pathname = "/setup";
-    const code = "code" in error && typeof error.code === "string" ? error.code : "unknown";
+    // Network and config failures carry no code; fall back to the error's name and status so /setup can say what happened
+    const status = "status" in error && typeof error.status === "number" ? error.status : undefined;
+    const code =
+      "code" in error && typeof error.code === "string"
+        ? error.code
+        : [error.name, status, error.message].filter((v) => v !== undefined && v !== "").join(" · ").slice(0, 200) || "unknown";
+    if (email && password) console.error("[proxy] owner sign-in failed", { name: error.name, status, code, message: error.message });
     setup.search = email && password ? `?reason=signin&code=${encodeURIComponent(code)}` : "?reason=env";
     return NextResponse.rewrite(setup);
   }

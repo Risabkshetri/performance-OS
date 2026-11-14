@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Button } from "@/components/ui/button";
+import { sendOwnerReset } from "@/lib/setup/actions";
 
 export const metadata: Metadata = { title: "Setup" };
 
@@ -12,8 +14,10 @@ const HINTS: Record<string, string> = {
   over_request_rate_limit: "Too many sign-in attempts. Wait a minute and reload.",
 };
 
-export default async function SetupPage({ searchParams }: { searchParams: Promise<{ reason?: string; code?: string }> }) {
-  const { reason, code } = await searchParams;
+export default async function SetupPage({ searchParams }: { searchParams: Promise<{ reason?: string; code?: string; reset?: string; resetCode?: string }> }) {
+  const { reason, code, reset, resetCode } = await searchParams;
+  const back = `/setup${reason ? `?reason=${encodeURIComponent(reason)}${code ? `&code=${encodeURIComponent(code)}` : ""}` : ""}`;
+  const canReset = Boolean(process.env.OWNER_EMAIL);
   const signinFailed = reason === "signin";
   const hint = code ? (HINTS[code] ?? `Supabase returned: ${code}`) : null;
   return (
@@ -31,6 +35,32 @@ export default async function SetupPage({ searchParams }: { searchParams: Promis
         <p className="mt-4 text-xs text-subtle-foreground">
           The account must exist in Supabase (Authentication → Users) and be confirmed. These values stay on the server.
         </p>
+        {canReset && (
+          <div className="mt-8 border-t pt-6">
+            <h2 className="text-base font-medium">Forgot the password?</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              We&apos;ll email a reset link to the address in <code className="rounded bg-muted px-1">OWNER_EMAIL</code>. Open it in this
+              browser to choose a new password.
+            </p>
+            {reset === "sent" ? (
+              <p role="status" className="mt-3 text-sm text-primary">
+                Reset link sent. Check that inbox (and spam).
+              </p>
+            ) : reset === "failed" ? (
+              <p role="alert" className="mt-3 text-sm text-destructive">
+                {resetCode === "over_email_send_rate_limit"
+                  ? "Supabase's email limit was hit. Wait a while and try again."
+                  : `Couldn't send the reset email. Supabase returned: ${resetCode ?? "unknown"}`}
+              </p>
+            ) : null}
+            <form action={sendOwnerReset} className="mt-4">
+              <input type="hidden" name="back" value={back} />
+              <Button type="submit" variant="outline" className="h-11 w-full">
+                Email me a reset link
+              </Button>
+            </form>
+          </div>
+        )}
       </div>
     </main>
   );
