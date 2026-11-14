@@ -91,7 +91,7 @@ export default async function DashboardPage() {
           {affirmation ? (
             <p className="mt-2 flex max-w-2xl items-start gap-2 text-sm text-muted-foreground">
               <Quote className={cn("mt-0.5 size-3.5 shrink-0", PILLAR_META[affirmation.pillar].text)} aria-hidden />
-              <span className="italic">{affirmation.text}</span>
+              <span className="whitespace-pre-line italic">{affirmation.text}</span>
             </p>
           ) : null}
         </div>

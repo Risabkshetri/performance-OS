@@ -84,7 +84,7 @@ export function AffirmationManager({
                 className="absolute inset-0 z-0 rounded-[4px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
                 aria-label={`Read: ${a.text}`}
               />
-              <p className="pointer-events-none relative font-display text-xl font-medium leading-snug text-foreground text-pretty">
+              <p className="pointer-events-none relative font-display text-xl font-medium leading-snug text-foreground text-pretty whitespace-pre-line">
                 {a.text}
               </p>
               <div className="pointer-events-none relative mt-auto flex items-center gap-2 pt-5 text-xs">
@@ -250,7 +250,7 @@ function Reader({
               <DialogDescription>{PILLAR_LABEL[a.pillar]}</DialogDescription>
             </DialogHeader>
             <Quote className="size-7 opacity-60" style={{ color: "var(--note)" }} aria-hidden />
-            <p className="my-auto py-6 font-display text-3xl font-medium leading-[1.25] tracking-[-0.01em] text-foreground text-balance sm:text-4xl">
+            <p className="my-auto py-6 font-display text-3xl font-medium leading-[1.25] tracking-[-0.01em] text-foreground text-balance sm:text-4xl whitespace-pre-line">
               {a.text}
             </p>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-[color-mix(in_oklab,var(--note)_25%,transparent)] pt-4 text-sm">
